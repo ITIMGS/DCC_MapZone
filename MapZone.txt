@@ -1,0 +1,328 @@
+using System;
+using System.Web.UI;
+using System.Configuration;
+using System.Text;
+using System.Data.OleDb;
+
+public partial class MapZone : System.Web.UI.Page
+{
+    public string m_sFooterInfo = "";
+
+    public string m_sFooterHyperlink = "";
+
+    public string m_sFooterLinkText = "";
+
+    public string m_sCompanyName = "";
+
+    public string m_sMapName = "";
+
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        System.Data.OleDb.OleDbConnection oManagementConnection = null;
+        string sManagementDBConnection = "";
+        System.Data.OleDb.OleDbConnection oTenantConnection = null;
+        string sTenantDBConnection = "";
+        string sReplaceLOCALHOST = "";
+        string sTenantProvider = "";
+        string sTenantConnectionSQL = "";
+        string sLayersConnectionSQL = "";
+        System.Data.OleDb.OleDbCommand oCommand = null;
+        OleDbDataReader oReader = null;
+        System.Data.OleDb.OleDbCommand oLayerCommand = null;
+        OleDbDataReader oLayerReader = null;
+        string sTenant = "";
+        string sMapName = "";
+        string sWMSURL = "";
+        Type cstype = Page.GetType();
+        string sLayerInfo = "";
+        StringBuilder sGetAPIURLScript = new StringBuilder();
+        StringBuilder sGetTenantNameScript = new StringBuilder();
+        StringBuilder sGetLayerInfoScript = new StringBuilder();
+        try
+        {
+            sManagementDBConnection = ConfigurationManager.AppSettings["MasterEnterpriseDatabaseConnection"].ToString();
+            sReplaceLOCALHOST = ConfigurationManager.AppSettings["ReplaceLOCALHOST"].ToString();
+            sWMSURL = ConfigurationManager.AppSettings["WMSURL"].ToString();
+            sMapName = ConfigurationManager.AppSettings["MapName"].ToUpper();
+            sTenant = ConfigurationManager.AppSettings["TenantName"].ToUpper();
+            m_sCompanyName = ConfigurationManager.AppSettings["CompanyName"].ToString();
+            m_sMapName = sMapName;
+            m_sFooterInfo = ConfigurationManager.AppSettings["FooterInfo"];
+            m_sFooterHyperlink = ConfigurationManager.AppSettings["FooterLink"];
+            m_sFooterLinkText = ConfigurationManager.AppSettings["FooterLinkText"];
+            sGetAPIURLScript.Append("<script type=\"text/javascript\"> function GetApiURL() { ");
+            sGetTenantNameScript.Append("<script type=\"text/javascript\"> function GetTenantName() { ");
+            sGetLayerInfoScript.Append("<script type=\"text/javascript\"> function GetLayerInfo() { ");
+            try
+            {
+                sGetAPIURLScript.Append(("return \'"
+                                + (sWMSURL + "\';")));
+            }
+            catch (Exception ex)
+            {
+            }
+
+            try
+            {
+                sGetTenantNameScript.Append(("return \'"
+                                + (sTenant + "\';")));
+            }
+            catch (Exception ex)
+            {
+            }
+
+            try
+            {
+                sGetLayerInfoScript.Append("var oLayerInfo = [];");
+                sGetLayerInfoScript.Append("function LayerInfo(name, srid, bbox, isvisible, layerid, mytooltip, token){this.name = name;this.srid" +
+                    " = srid;this.bbox = bbox;this.isvisible = isvisible;this.layerid = layerid;this.mytooltip = mytoolti" +
+                    "p;this.token = token;}");
+            }
+            catch (Exception ex)
+            {
+            }
+
+            oManagementConnection = new OleDbConnection(sManagementDBConnection);
+            if ((oManagementConnection == null))
+            {
+                return;
+            }
+
+            oManagementConnection.Open();
+            sTenantConnectionSQL = "select a.DATASOURCE,a.CONNECTIONSTRING " +
+            "from [dbo].[MAPP_CONNECTION] a, " +
+            " ( " +
+            "   SELECT [CONNECTION_ID],[NAME] " +
+            "   FROM [dbo].[MAPP_TENANT] " +
+            " ) b " +
+            ("where UPPER(b.[NAME]) = \'"
+                        + (sTenant + "\' ")) +
+            "and a.[ID] = b.[CONNECTION_ID] ";
+            oCommand = new OleDbCommand(sTenantConnectionSQL, oManagementConnection);
+            if ((oCommand == null))
+            {
+                return;
+            }
+
+            oReader = oCommand.ExecuteReader();
+            if ((oReader == null))
+            {
+                return;
+            }
+
+            while (oReader.Read())
+            {
+                try
+                {
+                    sTenantDBConnection = oReader["CONNECTIONSTRING"].ToString();
+                    if ((string.IsNullOrEmpty(sReplaceLOCALHOST) == false))
+                    {
+                        //  I put this in as I am coding from another machine (where localhost is not available for the DB)
+                        sTenantDBConnection = sTenantDBConnection.Replace("LOCALHOST", sReplaceLOCALHOST);
+                    }
+
+                    //  add the provider
+                    switch (oReader["DATASOURCE"].ToString())
+                    {
+                        case "SqlServer":
+                            sTenantProvider = "Provider=SQLOLEDB;";
+                            break;
+                        default:
+                            sTenantProvider = "Provider=SQLOLEDB;";
+                            break;
+                    }
+                    sTenantDBConnection = (sTenantProvider + sTenantDBConnection);
+                    oTenantConnection = new OleDbConnection(sTenantDBConnection);
+                    if ((oTenantConnection == null))
+                    {
+                        return;
+                    }
+
+                    oTenantConnection.Open();
+                    //  read the layers (for the public maps, the layers also have to be myGeoServices)
+                    sLayersConnectionSQL = "select h.name " +
+                    "  , d.srid " +
+                    "  , c.isvisible " +
+                    "  , a.[LAYER_ID]  " +
+                    "  , b.[MINX],b.[MINY],b.[MAXX],b.[MAXY]  " +
+                    "  , i.[TOOLTIP]  " +
+                    "  , \'\' token  " +
+                    "from [dbo].[MAPP_LEGEND_LAYER] a " +
+                    ("  , (select [legend_id],[MINX],[MINY],[MAXX],[MAXY] from [dbo].[MAPP_MAPVIEW] where UPPER(NAME) = \'"
+                                + (sMapName + "\') b ")) +
+                    "  , [dbo].[MAPP_LAYER] c " +
+                    "  , [dbo].[MAPP_DATASET] d " +
+                    "  , [dbo].[MAPP_LEGEND_LAYER] e " +
+                    "  , [dbo].[MAPP_VECTOR] f " +
+                    "  , [dbo].[MAPP_MAPSERVICE_VECTOR] g " +
+                    "  , [dbo].[MAPP_MAPSERVICE] h " +
+                    "  , [dbo].[MAPP_VECTOR] i " +
+                    "where a.[LEGEND_ID] = b.[LEGEND_ID] " +
+                    "and  (a.[LEGEND_ID] = e.[LEGEND_ID] and a.[LAYER_ID] = e.[LAYER_ID]) " +
+                    "and  a.[LAYER_ID] = c.[ID] " +
+                    "and  c.[DATASET_ID] = d.[ID] " +
+                    "and  c.[DATASET_ID] = f.[DATASET_ID] " +
+                    "and  c.[DATASET_ID] = g.[DATASET_ID] " +
+                    "and  h.[ID] = g.[SERVICE_ID] " +
+                    "and  c.[DATASET_ID] = i.[DATASET_ID] " +
+                    "order by a.levelindex; ";
+                    oLayerCommand = new OleDbCommand(sLayersConnectionSQL, oTenantConnection);
+                    if ((oLayerCommand == null))
+                    {
+                        return;
+                    }
+
+                    oLayerReader = oLayerCommand.ExecuteReader();
+                    if ((oLayerReader == null))
+                    {
+                        return;
+                    }
+
+                    string sBBOX = "";
+                    string sName = "";
+                    string sSRID = "";
+                    string IsIvisible = "";
+                    string sLayerID = "";
+                    string sTooltip = "";
+                    string aAPITokey = "";
+                    string sJS = "";
+                    while (oLayerReader.Read())
+                    {
+
+                        try
+                        {
+                            try
+                            {
+                                sBBOX = ("\'"
+                                            + (oLayerReader["MINX"] + (", "
+                                            + (oLayerReader["MINY"] + (", "
+                                            + (oLayerReader["MAXX"] + (", "
+                                            + (oLayerReader["MAXY"] + "\'"))))))));
+                                sName = ("\'"
+                                            + (oLayerReader["name"] + "\'"));
+                                sSRID = ("\'"
+                                            + (oLayerReader["srid"] + "\'"));
+                                IsIvisible = ("\'"
+                                            + (oLayerReader["isvisible"] + "\'"));
+                                sLayerID = ("\'"
+                                            + (oLayerReader["LAYER_ID"] + "\'"));
+                                aAPITokey = ("\'"
+                                            + (oLayerReader["token"].ToString().Replace("\'", "") + "\'"));
+                                sTooltip = oLayerReader["TOOLTIP"].ToString();
+                                sTooltip = sTooltip.Replace("{ENTITY.", "*[");
+                                sTooltip = sTooltip.Replace("}", "]*");
+                                // sTooltip = sTooltip.Replace("<p>", "*ps*")
+                                // sTooltip = sTooltip.Replace("</p>", "*pe*")
+                                sTooltip = sTooltip.Replace("\"", "");
+                                sTooltip = sTooltip.Replace("&", "");
+                                // sTooltip = sTooltip.Replace("nbsp;", "")
+                                sTooltip = sTooltip.Replace("vbLf", "");
+                                sTooltip = sTooltip.Replace("\r", "").Replace("\n", "");
+                                sTooltip = sTooltip.Replace("lt;", "<");
+                                sTooltip = sTooltip.Replace("gt;", ">");
+                                sTooltip = sTooltip.Replace("\'", "|");
+                                sTooltip = ("\'"
+                                            + (sTooltip + "\'"));
+                                sJS = ("oLayerInfo.push(new LayerInfo("
+                                            + (sName + (","
+                                            + (sSRID + (","
+                                            + (sBBOX + (","
+                                            + (IsIvisible + (","
+                                            + (sLayerID + (","
+                                            + (sTooltip + (","
+                                            + (aAPITokey + "));"))))))))))))));
+                                sGetLayerInfoScript.Append(sJS);
+                            }
+
+                            catch (Exception ex)
+                            {
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                        }
+                        oLayerReader.Close();
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                }
+                finally
+                {
+                    if (oTenantConnection == null)  //== false))
+                    {
+                        try
+                        {
+                            oTenantConnection.Close();
+                        }
+                        catch (Exception ex)
+                        {
+                        }
+
+                        oTenantConnection = null;
+                    }
+                    try
+                    {
+                        sGetLayerInfoScript.Append("return oLayerInfo;");
+                    }
+                    catch (Exception ex)
+                    {
+                    }
+
+                }
+            }
+            oReader.Close();
+        }
+
+        catch (Exception ex)
+        { }
+        finally
+        {
+
+            if (oManagementConnection == null)
+
+            {
+                try
+                {
+                    oManagementConnection.Close();
+                }
+                catch (Exception ex)
+                {
+                }
+
+                oManagementConnection = null;
+            }
+
+            try
+            {
+                sGetAPIURLScript.Append("} </script>");
+                Page.ClientScript.RegisterStartupScript(cstype, Guid.NewGuid().ToString(), sGetAPIURLScript.ToString(), false);
+            }
+            catch (Exception ex)
+            {
+            }
+
+            try
+            {
+                sGetTenantNameScript.Append("} </script>");
+                Page.ClientScript.RegisterStartupScript(cstype, Guid.NewGuid().ToString(), sGetTenantNameScript.ToString(), false);
+            }
+            catch (Exception ex)
+            {
+            }
+
+            try
+            {
+                sGetLayerInfoScript.Append("} </script>");
+                Page.ClientScript.RegisterStartupScript(cstype, Guid.NewGuid().ToString(), sGetLayerInfoScript.ToString(), false);
+            }
+            catch (Exception ex)
+            {
+            }
+
+        }
+
+    }
+
+}

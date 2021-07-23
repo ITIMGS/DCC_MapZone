@@ -1,0 +1,37 @@
+<appSettings>
+
+  <add key="CompanyName" value="Dublin City County Council" />
+
+  <!--M.App Enterprise Info-->
+  <add key="TenantName" value="MAPZONE" />
+  <add key="WMSURL" value="https://vm-webgisapp/api/v1/geoservices/wms/" />
+ 
+  
+    <!--Authentication Info-->
+    <add key="authUrl" value="https://vm-webgisapp/api/v1/oauth2/token" />
+    <add key="userName" value="ciarankinane" />
+    <add key="password" value="Naraic01" />
+	<add key="FreeTextTable" value="PL_PlanningApplications"/>
+    <add key="FreeTextColumn" value="Plan_Ref"/>
+    <add key ="PlanningAppFullName" value="[DCC_MAPZONE].dbo.[PL_PlanningApplications]"/>
+	<add key ="FreeTextDatabase" value="DCC_MAPZONE"/>
+
+
+  <add key="MasterEnterpriseDatabaseConnection" value="Provider=SQLOLEDB;Data Source=10.50.20.14;Initial Catalog=MAPP_MASTER;User ID=webmap;Password=webmap123;" />
+  <add key="ToolTipUrl" value="https://www.dublincity.ie/swiftlg/apas/run/WPHAPPDETAIL.DisplayUrl?theApnID={Parameter}"/>
+
+  <!--Development Tags-->
+
+  <!--ensure this is empty when used in production-->
+  
+  
+
+    <!--Authentication Info-->
+
+  
+
+  
+  <!--Development Tags-->
+  <add key="ReplaceLOCALHOST" value="" />
+  
+</appSettings>
