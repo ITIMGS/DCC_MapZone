@@ -1,0 +1,247 @@
+﻿body {
+}
+/* Style the tab */
+.tab {
+/* overflow-x:auto;*/
+border:0px solid #ccc;background-color:#f1f1f1; 
+
+}
+
+/* Style the buttons that are used to open the tab content */
+.tab button {
+ background-color:  #FF0000;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+  font-family:Verdana, Geneva, Tahoma, sans-serif;
+  font-weight:bold;
+  font-size:13px;
+}
+.tr:hover {background-color: #f5f5f5;}
+.leaflet-popup-content-wrapper{
+    /* overflow-x:auto; */
+}
+.tb{
+border-collapse: collapse; width: 100%; border:1px;
+}
+/* Change background color of buttons on hover */
+.tab button:hover {
+  background-color: #ddd;
+}
+.td{
+  border: 2px solid #ddd;
+   padding: 8px;
+ 
+}
+#tooltip{
+	display:none;
+}
+.Apptd{
+	font-weight:bold;
+}
+
+.value{
+	border: 2px solid #ddd;
+   padding: 8px;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+  background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+  display: none;
+  padding: 0px 0px;
+  border: 0px solid #ccc;
+  border-top: none;
+}
+.tb{
+    width: 1000%;
+}
+.tabcontent{
+    display:none;padding:6px 12px;border:1px solid #ccc; border-top:none;
+    max-height:350px;  
+    max-width:300px;   
+    overflow:auto;
+}
+.tablinks{
+    background-color:inherit;
+	float:left;
+	border:none;
+	outline:none;
+	cursor:pointer;
+	padding:14px 16px;
+	transition:0.3s;
+}
+
+
+
+.AppHeader{
+	background-color:  #718E9C;
+	padding:5px 5px;
+	color: white;
+	text-align: center;
+	font-family:Arial;
+    font-weight:bold;
+    font-size:14px;	
+	margin-top:20px;/*added by sreedevi*/
+
+	position:fixed;
+	top: 0px;
+	width: 300px;
+	
+}
+
+.AppTabRelated{
+	border-top-left-radius: 10px;
+	border-top-right-radius: 10px;
+    border-color: #718E9C;
+	border-top-style:solid;
+	border-left-style:solid;
+	border-right-style:solid;
+	border-bottom-style:solid;
+	border-bottom-color:solid;
+	cursor:pointer;
+	padding:10px 10px;
+	transition:0.3s;
+    position: fixed;
+	top: 0px;
+	/* left: 159px; */
+	left:162px;
+	background-color: #EAEEF1;
+	/* width: 157px; */
+	outline:none;
+	/* top:35px; */
+	top:55px;/*sreedevi */
+}
+
+.AppTabRelated:hover{
+	background-color:grey;
+	color: white;
+}
+
+
+.AppTabRelated:focus{
+	background-color:white;
+	color: black;
+	border-bottom-style:solid;
+	border-bottom-color:white;
+	outline:none;
+	
+}
+thead { display: table-header-group }
+tr { page-break-inside: avoid }
+
+.AppTabReg{
+	background-color:#EAEEF1; 
+	border-top-left-radius: 10px;
+	border-top-right-radius: 10px;
+    border-color: #718E9C;
+	border-top-style:solid;
+	border-left-style:solid;
+	border-right-style:solid;
+	border-bottom-style:solid; 
+		border-bottom-style:solid;
+		border-bottom-color:white;
+		background-color:white;
+		color: black;
+	cursor:pointer;
+	padding:10px 10px;
+	transition:0.3s;
+	position: fixed;
+	top: 0px;
+	/* left: 10px; */
+	/* width: 150px; */
+	width:149px;
+	outline:none;
+	/* top:35px; */
+	top:55px;
+}
+
+.AppTabReg:hover{
+	background-color:grey;
+	color: white;
+}
+
+.AppTabReg:not([selected="true"])
+{
+	background-color:#EAEEF1;
+	background-color:#EAEEF1; 
+	border-top-left-radius: 10px;
+	border-top-right-radius: 10px;
+    border-color: #718E9C;
+	border-top-style:solid;
+	border-left-style:solid;
+	border-right-style:solid;
+	/* border-bottom-style:solid;  */
+}
+.AppTabReg:focus{
+	background-color:white;
+	color: black;
+	border-bottom-style:solid;
+	border-bottom-color:white;
+	outline:none;
+}
+
+.Apptd{
+    width:20%;
+    font-family:Arial;
+    font-size:12px;
+	text-align: left;
+	padding:2px 2px;
+	border: 1px solid #ddd;
+	
+	
+}
+
+.AppTable{
+	width: 300px;
+	/* position: fixed; */
+	top: 77px;
+	left: 10px;
+	border-color: #718E9C;
+	border-top-style:none;
+	border-left-style:solid;
+	border-right-style:solid;
+	border-bottom-style:solid;
+	border-width: 2px;
+	padding-top:50px;
+	margin-bottom:0px;
+	margin-top:30px;
+	 max-height:350px;     
+     overflow-x:hidden; 
+	overflow-y:auto; 
+}
+
+.table{
+  
+    border-collapse:collapse;
+    width:100%;
+  
+
+}
+.td{
+    width:50%;
+    font-family:Verdana, Geneva, Tahoma, sans-serif;
+    font-size:10px;
+}
+.tabcontent{
+	display:none;
+	padding:6px 12px;
+	border:1px solid #ccc;
+}
+.tr:nth-child(nth-child){
+  background-color: #f2f2f2;
+}
+.title{
+    font-family:Verdana, Geneva, Tahoma, sans-serif;
+    font-weight:bold;
+    font-size:12px;
+	border: 2px solid #ddd;
+    padding: 8px;
+}
