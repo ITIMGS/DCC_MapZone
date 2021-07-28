@@ -50,7 +50,6 @@
     <script src="MapRelated/leaflet/leaflet.responsive.popup.js"></script>
     
     <%--    Added by sreedevi--%>
-        <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBTOJuSAsK937ZasSEmYfEC-5fNTQuEykc&libraries=places&callback=RegisterSearchControl" ></script>
 	<!-- Begin Cookie Consent plugin by Silktide - http://silktide.com/cookieconsent -->
     <link href="MapRelated/css/cookieconsent.min.css" rel="stylesheet" />
     <script src="MapRelated/js/cookieconsent.min.js"></script>
